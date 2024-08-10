@@ -5,7 +5,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import OnBoarding from "./screens/OnBoarding";
 import Home from "./screens/Home";
-import ChatScreen from "./screens/ChatScreen"; // Ensure this path is correct
+import ChatScreen from "./screens/ChatScreen";
 
 const Stack = createStackNavigator();
 
@@ -18,8 +18,7 @@ const App = () => {
       >
         <Stack.Screen name="OnBoarding" component={OnBoarding} />
         <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="Chat" component={ChatScreen} />{" "}
-        {/* Add the ChatScreen */}
+        <Stack.Screen name="Chat" component={ChatScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

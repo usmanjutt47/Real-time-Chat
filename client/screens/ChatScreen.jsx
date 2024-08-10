@@ -1,62 +1,53 @@
-// screens/ChatScreen.js
+// screens/ChatScreen.jsx
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
-  Text,
   TextInput,
   Button,
+  Text,
   FlatList,
   StyleSheet,
-  Dimensions,
 } from "react-native";
 import io from "socket.io-client";
 
-const { width, height } = Dimensions.get("window");
+const socket = io("http://192.168.10.10:5000"); // Replace with your server URL
 
 const ChatScreen = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const socket = io("http://localhost:3000"); // Replace with your server URL
 
   useEffect(() => {
-    socket.on("receive_message", (newMessage) => {
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    socket.on("receiveMessage", (msg) => {
+      setMessages((prevMessages) => [...prevMessages, msg]);
     });
 
     return () => {
-      socket.disconnect();
+      socket.off("receiveMessage");
     };
-  }, [socket]);
+  }, []);
 
-  const handleSend = () => {
-    if (message.trim()) {
-      const newMessage = { text: message, sender: "user" }; // Replace with actual sender info
-      socket.emit("send_message", newMessage);
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-      setMessage("");
-    }
+  const handleSendMessage = () => {
+    socket.emit("sendMessage", message);
+    setMessage("");
   };
 
   return (
     <View style={styles.container}>
       <FlatList
         data={messages}
-        renderItem={({ item }) => (
-          <View style={styles.messageContainer}>
-            <Text style={styles.messageText}>{item.text}</Text>
-          </View>
-        )}
+        renderItem={({ item }) => <Text style={styles.message}>{item}</Text>}
         keyExtractor={(item, index) => index.toString()}
-        style={styles.messagesList}
       />
-      <TextInput
-        style={styles.input}
-        value={message}
-        onChangeText={setMessage}
-        placeholder="Type a message"
-      />
-      <Button title="Send" onPress={handleSend} />
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          value={message}
+          onChangeText={setMessage}
+          placeholder="Type a message"
+        />
+        <Button title="Send" onPress={handleSendMessage} />
+      </View>
     </View>
   );
 };
@@ -64,28 +55,26 @@ const ChatScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "flex-end",
-    padding: width * 0.05,
+    padding: 10,
+    backgroundColor: "#f5f5f5",
   },
-  messagesList: {
-    flex: 1,
-  },
-  messageContainer: {
-    padding: width * 0.02,
-    marginBottom: height * 0.02,
-    backgroundColor: "#e1e1e1",
-    borderRadius: 8,
-  },
-  messageText: {
-    fontSize: width * 0.04,
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   input: {
-    height: height * 0.06,
+    flex: 1,
     borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: width * 0.03,
-    marginBottom: height * 0.02,
+    borderRadius: 5,
+    padding: 10,
+    marginRight: 10,
+  },
+  message: {
+    padding: 10,
+    backgroundColor: "#fff",
+    marginVertical: 5,
+    borderRadius: 5,
   },
 });
 
